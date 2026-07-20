@@ -5,9 +5,10 @@ import * as THREE from 'three'
 gsap.registerPlugin(ScrollTrigger)
 
 // Shaders
-import frag from './shaders/gradient_fragShader'
-// import vert from './shaders/gradient_vertexShader'
-import vert_2 from './shaders/gradient_vertexShader_2'
+// import frag from './shaders/gradient_fragShader'
+import vert from './shaders/gradient_vertexShader'
+// import vert_2 from './shaders/gradient_vertexShader_2'
+import woodFrag from './shaders/wood_fragShader'
 
 const UNIFORMS = {
   u_cycleSpeed: { value: 0.4 },
@@ -69,6 +70,22 @@ async function worldHome() {
 
   //#endregion
 
+  //#region TEXTURE
+  const textureLoader = new THREE.TextureLoader()
+
+  const woodTexture = textureLoader.load(
+    'https://cdn.jsdelivr.net/gh/illysito/amorenelaire@3edaf63110d35612c3414658efee33dec37b9eef/textures/woodTexture.png'
+  )
+
+  const perlinTexture = textureLoader.load(
+    'https://cdn.jsdelivr.net/gh/illysito/amorenelaire@0714d117d78e43ca5310ea45c9e93b48ece7e576/textures/perlinSquare.jpg'
+  )
+
+  woodTexture.wrapS = THREE.RepeatWrapping
+  woodTexture.wrapT = THREE.RepeatWrapping
+  woodTexture.colorSpace = THREE.SRGBColorSpace // if it's a color image
+
+  //#endregion
   //#region BACKGROUND PLANE
 
   // -------------------------------------------------------------- Background Plane --------------------------------------------------------------
@@ -98,15 +115,19 @@ async function worldHome() {
   const seed = Math.random() * 20
   // console.log('Seed: ', seed)
   const planeMaterial = new THREE.ShaderMaterial({
-    fragmentShader: frag,
-    vertexShader: vert_2,
+    fragmentShader: woodFrag,
+    vertexShader: vert,
     uniforms: {
       u_time: { value: 0 },
       u_seed: { value: seed },
+      u_mouseX: { value: 0.0 },
+      u_mouseY: { value: 0.0 },
       u_cycleTime: { value: UNIFORMS.u_cycleTime.value },
       u_cycleSpeed: { value: UNIFORMS.u_cycleSpeed.value },
       u_powerFactor: { value: UNIFORMS.u_powerFactor.value },
       u_blueFactor: { value: UNIFORMS.u_blueFactor.value },
+      u_wood: { value: woodTexture },
+      u_perlin: { value: perlinTexture },
       u_resolution: {
         value: new THREE.Vector2(canvas.clientWidth, canvas.clientHeight),
       },
@@ -138,7 +159,21 @@ async function worldHome() {
   // normal counter
   let planeCounter = 0
 
+  let targetX = 0
+  let targetY = 0
+
+  let currentX = 0
+  let currentY = 0
+
+  let lerpFactor = 0.002
+
+  function lerp(start, end, t) {
+    return start + (end - start) * t
+  }
+
   function animate() {
+    currentX = lerp(currentX, targetX, lerpFactor)
+    currentY = lerp(currentY, targetY, lerpFactor)
     // Background plane
     planeCounter = (planeCounter + 0.002) % 5000 // safeguard to not let counter evolve endlessly
     planeMaterial.uniforms.u_time.value = planeCounter
@@ -146,6 +181,10 @@ async function worldHome() {
     planeMaterial.uniforms.u_cycleTime.value = UNIFORMS.u_cycleTime.value
     planeMaterial.uniforms.u_powerFactor.value = UNIFORMS.u_powerFactor.value
     planeMaterial.uniforms.u_blueFactor.value = UNIFORMS.u_blueFactor.value
+    planeMaterial.uniforms.u_mouseX.value = currentX
+    planeMaterial.uniforms.u_mouseY.value = currentY
+
+    console.log(currentX, currentY)
     // if (!isMobile()) {
     //   plane.rotation.z = Math.PI * Math.cos(0.25 * planeCounter)
     // }
@@ -176,6 +215,11 @@ async function worldHome() {
   })
 
   //#endregion
+
+  window.addEventListener('mousemove', (e) => {
+    targetX = e.clientX / window.innerWidth
+    targetY = 1.0 - e.clientY / window.innerHeight
+  })
 }
 
 export default worldHome

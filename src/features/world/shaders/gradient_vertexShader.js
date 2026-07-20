@@ -119,7 +119,7 @@ void main() {
 
     float sNoise = max(0., snoise(vec3(noiseFreq * vec2(noiseCoords.x + 0.6 * u_time + u_seed, noiseCoords.y - 0.6 * u_time), u_time)));
 
-    pos.z += noiseAmp * sNoise;
+    // pos.z += noiseAmp * sNoise;
 
 
 
