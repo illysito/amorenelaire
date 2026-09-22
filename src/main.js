@@ -1,6 +1,8 @@
 import logoMotion from './features/motion/logoMotion'
+import menu from './features/motion/menu'
+import scroll_hero from './features/motion/scroll_HOME'
 import worldHomeAdan from './features/world/adanMoreno/world'
-// import worldHome from './features/world/world'
+import worldHome from './features/world/worldHome'
 
 import './styles/style.css'
 
@@ -13,8 +15,10 @@ function runAdanMorenoWorld() {
 //#endregion
 
 function runHomeFunctions() {
-  // worldHome()
+  new worldHome()
   logoMotion()
+  menu()
+  scroll_hero()
 }
 
 const body = document.body
