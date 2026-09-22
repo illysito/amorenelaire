@@ -183,10 +183,10 @@ void main()
 
   // float grain = hash12(uv + u_time);
 
-  vec4 perlin = texture2D(u_perlin, uv);
+  vec4 perlin = texture2D(u_perlin, vec2(uv.x, uv.y));
 
   vec2 distortionUV = vec2(
-    uv.x + 0.2 * sin(u_time) + 0.2 * sin(0.2 * u_time) * perlin.r,
+    uv.x + 0.1 * sin(u_time) + 0.2 * sin(0.2 * u_time) * perlin.r,
     uv.y + 0.02 * cos(u_time) + 0.2 * sin(0.2 * u_time) * perlin.r
   );
 
@@ -222,7 +222,7 @@ void main()
 
   vec3 smokeColor = vec3(0.92);
 
-  gl_FragColor = vec4((0.9 + 0.1 * sin(u_time)) * wood.r * smokeColor * random, smokeMask);
+  gl_FragColor = 0.6 * vec4((0.99 + 0.4 * sin(u_time)) * 1.3 * wood.r * (1.0 - perlin.r) * smokeColor * random, smokeMask);
 
   // gl_FragColor = vec4(finalColor, 1.0);
 

@@ -5,10 +5,10 @@ import * as THREE from 'three'
 gsap.registerPlugin(ScrollTrigger)
 
 // Shaders
-import frag from './shaders/gradient_fragShader'
-import vert from './shaders/gradient_vertexShader'
+// import frag from '../shaders/gradient_fragShader'
+import vert from '../shaders/gradient_vertexShader'
 // import vert_2 from './shaders/gradient_vertexShader_2'
-// import frag from './shaders/wood_fragShader'
+import frag from '../shaders/wood_fragShader'
 
 const UNIFORMS = {
   u_cycleSpeed: { value: 0.4 },
@@ -21,7 +21,7 @@ function isMobile() {
   return window.matchMedia('(max-width: 667px)').matches
 }
 
-async function worldHome() {
+async function worldHomeAdan() {
   //#region SETUP
 
   // -------------------------------------------------------------- Setup --------------------------------------------------------------
@@ -223,4 +223,4 @@ async function worldHome() {
   })
 }
 
-export default worldHome
+export default worldHomeAdan
