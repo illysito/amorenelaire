@@ -170,13 +170,42 @@ export default class WorldHome {
     // })
 
     this.domImageWrappers.forEach((w, index) => {
+      const item = this.imageStore[index]
+
       w.addEventListener('mousemove', (e) => {
         const rect = w.getBoundingClientRect()
 
-        this.imageStore[index].targetMouseX =
-          (e.clientX - rect.left) / rect.width
-        this.imageStore[index].targetMouseY =
-          1.0 - (e.clientY - rect.top) / rect.height
+        item.targetMouseX = (e.clientX - rect.left) / rect.width
+        item.targetMouseY = 1.0 - (e.clientY - rect.top) / rect.height
+      })
+
+      w.addEventListener('mouseenter', () => {
+        gsap.killTweensOf(item, 'warpFactor')
+
+        gsap.to(item, {
+          warpFactor: 0.148,
+          duration: 1.2,
+          ease: 'power2.inOut',
+          onComplete: () => {
+            // If they're still hovering, slowly consume the image
+            gsap.to(item, {
+              delay: 3,
+              warpFactor: 1,
+              duration: 5,
+              ease: 'power2.inOut',
+            })
+          },
+        })
+      })
+
+      w.addEventListener('mouseleave', () => {
+        gsap.killTweensOf(item, 'warpFactor')
+
+        gsap.to(item, {
+          warpFactor: 0,
+          duration: 1.2,
+          ease: 'power2.inOut',
+        })
       })
     })
   }
@@ -242,6 +271,7 @@ export default class WorldHome {
         img.mesh.material.uniforms.u_scroll.value = this.scrollValue
         img.mesh.material.uniforms.u_mouseX.value = img.mouseX
         img.mesh.material.uniforms.u_mouseY.value = img.mouseY
+        img.mesh.material.uniforms.u_warpFactor.value = img.warpFactor
       })
     }
     // time for image canvas
@@ -285,12 +315,6 @@ export default class WorldHome {
       )
     )
 
-    const heroSwitched = await loader.loadAsync(
-      githubToJsDelivr(
-        'https://github.com/illysito/amorenelaire/blob/14313651f9b1110aa4ec9d46ead45adea22942d9/textures/AmorenelAirePaulaPRUEBA-13.jpg'
-      )
-    )
-
     const texturesFront = await Promise.all([
       // Pau
       loader.loadAsync(
@@ -298,6 +322,7 @@ export default class WorldHome {
           'https://github.com/illysito/amorenelaire/blob/14313651f9b1110aa4ec9d46ead45adea22942d9/textures/AmorenelAirePaulaPRUEBA-12.jpg'
         )
       ),
+      // Zoa x Diego
       loader.loadAsync(
         githubToJsDelivr(
           'https://github.com/illysito/amorenelaire/blob/04a272803d184b7b7db65fda964d26b2c89a2af4/textures/Z%26D_preview-48.webp'
@@ -308,9 +333,10 @@ export default class WorldHome {
           'https://github.com/illysito/amorenelaire/blob/04a272803d184b7b7db65fda964d26b2c89a2af4/textures/Z%26D_preview-10.webp'
         )
       ),
+      // Amanda x Paula
       loader.loadAsync(
         githubToJsDelivr(
-          'https://github.com/illysito/amorenelaire/blob/04a272803d184b7b7db65fda964d26b2c89a2af4/textures/Boda%20Amanda%20%26%20Paula%20-39.webp'
+          'https://github.com/illysito/amorenelaire/blob/9e43d2cbf191e1bad96c1e22e30f890dd6e1768e/textures/Boda%20Amanda%20%26%20Paula%20-30.webp'
         )
       ),
       loader.loadAsync(
@@ -318,6 +344,7 @@ export default class WorldHome {
           'https://github.com/illysito/amorenelaire/blob/04a272803d184b7b7db65fda964d26b2c89a2af4/textures/Boda%20Amanda%20%26%20Paula%20-25.webp'
         )
       ),
+      // Conchi x Adrian
       loader.loadAsync(
         githubToJsDelivr(
           'https://github.com/illysito/amorenelaire/blob/04a272803d184b7b7db65fda964d26b2c89a2af4/textures/Adria%CC%81n%20%26%20Conchi-1011.webp'
@@ -328,17 +355,67 @@ export default class WorldHome {
           'https://github.com/illysito/amorenelaire/blob/04a272803d184b7b7db65fda964d26b2c89a2af4/textures/Adria%CC%81n%20%26%20Conchi-1129.webp'
         )
       ),
+      // Miri x Joan
       loader.loadAsync(
         githubToJsDelivr(
           'https://github.com/illysito/amorenelaire/blob/04a272803d184b7b7db65fda964d26b2c89a2af4/textures/BODA_M%26J-590.webp'
         )
       ),
     ])
-    return { perlin, heroSwitched, texturesFront }
+
+    const texturesBack = await Promise.all([
+      // Pau
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/14313651f9b1110aa4ec9d46ead45adea22942d9/textures/AmorenelAirePaulaPRUEBA-13.jpg'
+        )
+      ),
+      // Zoa x Diego
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/9e43d2cbf191e1bad96c1e22e30f890dd6e1768e/textures/Z%26D_preview-12.webp'
+        )
+      ),
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/9e43d2cbf191e1bad96c1e22e30f890dd6e1768e/textures/Z%26D_preview-3.webp'
+        )
+      ),
+      // Amanda x Paula
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/9e43d2cbf191e1bad96c1e22e30f890dd6e1768e/textures/Boda%20Amanda%20%26%20Paula%20-39.webp'
+        )
+      ),
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/9e43d2cbf191e1bad96c1e22e30f890dd6e1768e/textures/Boda%20Amanda%20%26%20Paula%20-80.webp'
+        )
+      ),
+      // Conchi x Adrian
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/9e43d2cbf191e1bad96c1e22e30f890dd6e1768e/textures/Adria%CC%81n%20%26%20Conchi-1059.webp'
+        )
+      ),
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/9e43d2cbf191e1bad96c1e22e30f890dd6e1768e/textures/Adria%CC%81n%20%26%20Conchi-574.webp'
+        )
+      ),
+      // Miri x Joan
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/9e43d2cbf191e1bad96c1e22e30f890dd6e1768e/textures/BODA_M%26J-473%20(1).webp'
+        )
+      ),
+    ])
+
+    return { perlin, texturesBack, texturesFront }
   }
 
   async addImages() {
-    const { perlin, heroSwitched, texturesFront } = await this.loadTextures()
+    const { perlin, texturesBack, texturesFront } = await this.loadTextures()
 
     const parameters = [
       {
@@ -447,11 +524,12 @@ export default class WorldHome {
           u_edgeIsDown: { value: parameters[index].edgeIsDown },
           u_needsDistortion: { value: parameters[index].needsDistortion },
           u_needsSwitch: { value: parameters[index].needsSwitch },
+          u_warpFactor: { value: 0.0 },
           u_scroll: { value: 0.0 },
           u_mouseX: { value: 0.0 },
           u_mouseY: { value: 0.0 },
           u_image_1: { value: texturesFront[index] },
-          u_image_2: { value: heroSwitched },
+          u_image_2: { value: texturesBack[index] },
           u_displacement: { value: perlin },
         },
       })
@@ -472,6 +550,8 @@ export default class WorldHome {
         mouseY: 0.5,
         targetMouseX: 0.5,
         targetMouseY: 0.5,
+
+        warpFactor: 0.0,
 
         isVisible: true,
       }

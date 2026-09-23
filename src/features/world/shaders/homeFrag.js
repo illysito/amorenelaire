@@ -17,6 +17,7 @@ uniform float u_offset;
 uniform float u_offsetFactor;
 uniform float u_amp;
 uniform float u_freq;
+uniform float u_warpFactor;
 
 uniform float u_scroll;
 uniform float u_grain;
@@ -205,7 +206,11 @@ void main()
   // DISTORTION FOR MOUSE MOVE
   float mouseMask = 0.0;
   if (!u_needsDistortion){
-    float mouseDist = distance(uv, vec2(u_mouseX, u_mouseY));
+
+    vec2 aspectUV = uv;
+    aspectUV.x *= u_resolution.x / u_resolution.y;
+
+    float mouseDist = distance(aspectUV, vec2(u_mouseX * u_resolution.x / u_resolution.y, u_mouseY));
 
     float influence = smoothstep(
       0.12,
@@ -215,23 +220,23 @@ void main()
 
     // Add noise to the brush boundary
     float brushNoise = snoise(vec3(
-            uv.x * 8.0,
-            uv.y * 8.0 + u_time * 0.15,
+        aspectUV.x * 8.0,
+        aspectUV.y * 8.0 + u_time * 0.15,
         u_time
         )
     );
 
     // Distort the radius
-    float noisyDist = mouseDist + brushNoise * 0.08;
+    float noisyDist = mouseDist + brushNoise * 0.4 * u_warpFactor;
 
     // 0 inside cursor area → 1 outside
     mouseMask = smoothstep(
-      0.1975,
-      0.198,
+      u_warpFactor - 0.0005,
+      u_warpFactor,
       noisyDist
     );
 
-    float noiseOffset = 0.008 * dist + influence * 0.008;
+    float noiseOffset = 0.008 * (dist + influence);
     coords.x += noiseOffset;
     coords.y += noiseOffset;
   }
