@@ -5,9 +5,23 @@ precision highp float;
 
 uniform float u_time;
 uniform vec2 u_resolution;
+uniform vec2 u_imgResolution;
+
+uniform float u_seed;
+
+uniform bool u_edgeIsDown;
+uniform bool u_needsDistortion;
+
 uniform float u_offset;
+uniform float u_offsetFactor;
+uniform float u_amp;
+uniform float u_freq;
+
 uniform float u_scroll;
 uniform float u_grain;
+uniform float u_mouseX;
+uniform float u_mouseY;
+
 uniform sampler2D u_image_1;
 uniform sampler2D u_displacement;
 
@@ -155,7 +169,8 @@ void main()
   vec2 uv = v_texcoord;
 
   // find out the ratios
-  float image_ratio = 1440.0 / 780.0;
+  // float image_ratio = 1440.0 / 780.0;
+  float image_ratio = u_imgResolution.x / u_imgResolution.y;
   float canvas_ratio = u_resolution.x / u_resolution.y;
 
   vec2 coords = aspect(uv, image_ratio, canvas_ratio);
@@ -167,17 +182,23 @@ void main()
 
   // DISTORTION
 
-  float dist = 0.5 * (snoise(vec3(uv.x * 6.0, uv.y / canvas_ratio * 6.0, 0.8 * u_time + u_scroll)) + 1.0);
-  dist *= 18. * u_scroll;
-  // dist *= 2.;
+  float alpha = 1.0;
 
-  // CODE GRID APPROACH
+  if (u_needsDistortion){
+    float dist = 0.5 * (snoise(vec3(uv.x * u_freq, uv.y / canvas_ratio * u_freq, 0.8 * u_time + u_scroll + u_mouseX + u_seed)) + 1.0);
+    dist *= u_amp * u_scroll;
 
-  float edge = 1.0 * u_scroll - 0.04 - 1. * uv.y;
-  float d = edge + 0.1 * dist;
+    float y = uv.y;
+    if (u_edgeIsDown == false) {
+      y = 1.0 - uv.y;
+    }
+    float edge = u_offsetFactor * u_scroll - u_offset - y;
 
-  float pixelSize = 1.0 / u_resolution.y;
-  float alpha = 1.0 - smoothstep(-2.0 * pixelSize, 2.0 * pixelSize, d);
+    float d = edge + 0.1 * dist;
+
+    float pixelSize = 1.0 / u_resolution.y;
+    alpha = 1.0 - smoothstep(-2.0 * pixelSize, 2.0 * pixelSize, d);
+  }
 
   // IMG
 

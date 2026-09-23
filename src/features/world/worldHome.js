@@ -21,6 +21,11 @@ export default class WorldHome {
 
     this.time = 0
     this.scrollValue = 0
+    this.mouseX = 0
+    this.mouseY = 0
+    this.targetMouseX = 0
+    this.targetMouseY = 0
+    this.lerpFactor = 0.05
     this.isScrolling = false
     this.isResizing = false
 
@@ -64,6 +69,10 @@ export default class WorldHome {
 
     this.resize()
     this.init()
+  }
+
+  lerp(start, end, t) {
+    return start + (end - start) * t
   }
 
   async init() {
@@ -152,6 +161,11 @@ export default class WorldHome {
       },
       { passive: true }
     )
+
+    window.addEventListener('mousemove', (e) => {
+      this.targetMouseX = (0.1 * e.clientX) / window.innerWidth
+      this.targetMouseY = (0.1 * e.clientY) / window.innerHeight
+    })
   }
 
   resize() {
@@ -190,6 +204,9 @@ export default class WorldHome {
   render() {
     this.time += 0.5
 
+    this.mouseX = this.lerp(this.mouseX, this.targetMouseX, this.lerpFactor)
+    this.mouseY = this.lerp(this.mouseY, this.targetMouseY, this.lerpFactor)
+
     // FPS
     this.frameCount++
     const now = performance.now()
@@ -204,6 +221,8 @@ export default class WorldHome {
       this.imageStore.forEach((img) => {
         img.mesh.material.uniforms.u_time.value = 0.002 * this.time
         img.mesh.material.uniforms.u_scroll.value = this.scrollValue
+        img.mesh.material.uniforms.u_mouseX.value = this.mouseX
+        img.mesh.material.uniforms.u_mouseY.value = this.mouseY
       })
     }
     // time for image canvas
@@ -254,15 +273,74 @@ export default class WorldHome {
           'https://github.com/illysito/amorenelaire/blob/a47abeea57421b9e374b64aa899759c80c8b164a/textures/PaulaAzul.webp'
         )
       ),
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/44eca4a8fb8e32abfba307dd01b8e441d4b04c8b/textures/IMG_0045.webp'
+        )
+      ),
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/44eca4a8fb8e32abfba307dd01b8e441d4b04c8b/textures/IMG_7675.webp'
+        )
+      ),
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/44eca4a8fb8e32abfba307dd01b8e441d4b04c8b/textures/BODA_M%26J-590.webp'
+        )
+      ),
     ])
-
     return { perlin, texturesFront }
   }
 
   async addImages() {
     const { perlin, texturesFront } = await this.loadTextures()
+
+    const parameters = [
+      {
+        amp: 18,
+        freq: 6,
+        offset: 0.04,
+        offsetFactor: 0.8,
+        edgeIsDown: true,
+        needsDistortion: true,
+      },
+      {
+        amp: 2,
+        freq: 3,
+        offset: 1.14,
+        offsetFactor: 2.52,
+        edgeIsDown: false,
+        needsDistortion: false,
+      },
+      {
+        amp: 3,
+        freq: 3,
+        offset: 1.14,
+        offsetFactor: 2.52,
+        edgeIsDown: false,
+        needsDistortion: false,
+      },
+      {
+        amp: 2.5,
+        freq: 3,
+        offset: 1.14,
+        offsetFactor: 2.52,
+        edgeIsDown: false,
+        needsDistortion: false,
+      },
+    ]
+
     this.imageStore = this.domImageWrappers.map((img, index) => {
+      const actualImg = img.querySelector('img')
+      const imageResolution = new THREE.Vector2(
+        actualImg.naturalWidth,
+        actualImg.naturalHeight
+      )
+      console.log('image RES:', imageResolution.x, imageResolution.y)
+
       let bounds = img.getBoundingClientRect()
+
+      let seed = Math.random() * 20
 
       // create a mesh for each image
       // let geometry = new THREE.PlaneGeometry(bounds.width, bounds.height, 1, 1)
@@ -273,8 +351,19 @@ export default class WorldHome {
         uniforms: {
           u_time: { value: 0 },
           u_resolution: { value: new THREE.Vector2(1, 1) },
-          u_offset: { value: 0.0 },
+          u_imgResolution: {
+            value: new THREE.Vector2(imageResolution.x, imageResolution.y),
+          },
+          u_seed: { value: seed },
+          u_offset: { value: parameters[index].offset },
+          u_offsetFactor: { value: parameters[index].offsetFactor },
+          u_amp: { value: parameters[index].amp },
+          u_freq: { value: parameters[index].freq },
+          u_edgeIsDown: { value: parameters[index].edgeIsDown },
+          u_needsDistortion: { value: parameters[index].needsDistortion },
           u_scroll: { value: 0.0 },
+          u_mouseX: { value: 0.0 },
+          u_mouseY: { value: 0.0 },
           u_image_1: { value: texturesFront[index] },
           u_displacement: { value: perlin },
         },
