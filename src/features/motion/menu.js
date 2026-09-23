@@ -4,7 +4,7 @@ function menu() {
   const menuButton = document.querySelector('.hamburger-wrapper')
   const menuSection = document.querySelector('.menu__section')
   const menuItems = [...document.querySelectorAll('.menu-item')]
-  const logo = document.querySelector('.logo-wrapper')
+  const logo = document.querySelector('.logo-container')
   const lines = [...document.querySelectorAll('.line')]
   const heroSection = document.querySelector('.hero__section')
   const canvasSection = document.querySelector('.canvas__section')
@@ -14,10 +14,10 @@ function menu() {
 
   function openMenu() {
     isClickEnabled = false
-    // gsap.to(logo, {
-    //   opacity: 0,
-    //   duration: 0.8,
-    // })
+    gsap.to(logo, {
+      opacity: 0,
+      duration: 0.8,
+    })
     gsap.to(menuSection, {
       yPercent: 100,
       duration: 2,
@@ -77,7 +77,7 @@ function menu() {
       },
     })
     gsap.to(logo, {
-      delay: 0.8,
+      delay: 1.2,
       opacity: 1,
       duration: 0.8,
     })

@@ -80,7 +80,6 @@ export default class WorldHome {
     // await this.addImages()
     // await this.addPlane()
     // this.setupObserver()
-    this.setupListeners()
     // this.setImagePositions()
     // this.addObjects()
     this.render()
@@ -92,9 +91,11 @@ export default class WorldHome {
       // this.setupObserver()
       this.setImagePositions()
       this.resize()
+      this.setupListeners()
     }, 600) // tweak: 300–1500ms depending on feel
   }
 
+  //#region OBSERVER
   setupObserver() {
     this.io = new IntersectionObserver(
       (entries) => {
@@ -129,6 +130,7 @@ export default class WorldHome {
       this.io.observe(item.img)
     })
   }
+  //#endregion
 
   setupListeners() {
     let scrollTimeout
@@ -162,9 +164,20 @@ export default class WorldHome {
       { passive: true }
     )
 
-    window.addEventListener('mousemove', (e) => {
-      this.targetMouseX = (0.1 * e.clientX) / window.innerWidth
-      this.targetMouseY = (0.1 * e.clientY) / window.innerHeight
+    // window.addEventListener('mousemove', (e) => {
+    //   this.targetMouseX = (0.1 * e.clientX) / window.innerWidth
+    //   this.targetMouseY = (0.1 * e.clientY) / window.innerHeight
+    // })
+
+    this.domImageWrappers.forEach((w, index) => {
+      w.addEventListener('mousemove', (e) => {
+        const rect = w.getBoundingClientRect()
+
+        this.imageStore[index].targetMouseX =
+          (e.clientX - rect.left) / rect.width
+        this.imageStore[index].targetMouseY =
+          1.0 - (e.clientY - rect.top) / rect.height
+      })
     })
   }
 
@@ -190,8 +203,13 @@ export default class WorldHome {
           rect.width * pr,
           rect.height * pr
         )
-        console.log('res:', item.mesh.material.uniforms.u_resolution.value)
+        // console.log('res:', item.mesh.material.uniforms.u_resolution.value)
+
         item.mesh.scale.set(rect.width, rect.height, 1)
+        // if (index === 0) {
+        //   item.mesh.scale.x *= 1.05
+        //   item.mesh.scale.y *= 1.05
+        // }
       })
     }
 
@@ -201,11 +219,9 @@ export default class WorldHome {
     this.camera.updateProjectionMatrix()
   }
 
+  // LOOP!
   render() {
     this.time += 0.5
-
-    this.mouseX = this.lerp(this.mouseX, this.targetMouseX, this.lerpFactor)
-    this.mouseY = this.lerp(this.mouseY, this.targetMouseY, this.lerpFactor)
 
     // FPS
     this.frameCount++
@@ -219,10 +235,13 @@ export default class WorldHome {
     // time for main canvas
     if (this.imageStore) {
       this.imageStore.forEach((img) => {
+        img.mouseX = this.lerp(img.mouseX, img.targetMouseX, this.lerpFactor)
+        img.mouseY = this.lerp(img.mouseY, img.targetMouseY, this.lerpFactor)
+
         img.mesh.material.uniforms.u_time.value = 0.002 * this.time
         img.mesh.material.uniforms.u_scroll.value = this.scrollValue
-        img.mesh.material.uniforms.u_mouseX.value = this.mouseX
-        img.mesh.material.uniforms.u_mouseY.value = this.mouseY
+        img.mesh.material.uniforms.u_mouseX.value = img.mouseX
+        img.mesh.material.uniforms.u_mouseY.value = img.mouseY
       })
     }
     // time for image canvas
@@ -266,57 +285,86 @@ export default class WorldHome {
       )
     )
 
+    const heroSwitched = await loader.loadAsync(
+      githubToJsDelivr(
+        'https://github.com/illysito/amorenelaire/blob/14313651f9b1110aa4ec9d46ead45adea22942d9/textures/AmorenelAirePaulaPRUEBA-13.jpg'
+      )
+    )
+
     const texturesFront = await Promise.all([
       // Pau
       loader.loadAsync(
         githubToJsDelivr(
-          'https://github.com/illysito/amorenelaire/blob/a47abeea57421b9e374b64aa899759c80c8b164a/textures/PaulaAzul.webp'
+          'https://github.com/illysito/amorenelaire/blob/14313651f9b1110aa4ec9d46ead45adea22942d9/textures/AmorenelAirePaulaPRUEBA-12.jpg'
         )
       ),
       loader.loadAsync(
         githubToJsDelivr(
-          'https://github.com/illysito/amorenelaire/blob/44eca4a8fb8e32abfba307dd01b8e441d4b04c8b/textures/IMG_0045.webp'
+          'https://github.com/illysito/amorenelaire/blob/04a272803d184b7b7db65fda964d26b2c89a2af4/textures/Z%26D_preview-48.webp'
         )
       ),
       loader.loadAsync(
         githubToJsDelivr(
-          'https://github.com/illysito/amorenelaire/blob/44eca4a8fb8e32abfba307dd01b8e441d4b04c8b/textures/IMG_7675.webp'
+          'https://github.com/illysito/amorenelaire/blob/04a272803d184b7b7db65fda964d26b2c89a2af4/textures/Z%26D_preview-10.webp'
         )
       ),
       loader.loadAsync(
         githubToJsDelivr(
-          'https://github.com/illysito/amorenelaire/blob/44eca4a8fb8e32abfba307dd01b8e441d4b04c8b/textures/BODA_M%26J-590.webp'
+          'https://github.com/illysito/amorenelaire/blob/04a272803d184b7b7db65fda964d26b2c89a2af4/textures/Boda%20Amanda%20%26%20Paula%20-39.webp'
+        )
+      ),
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/04a272803d184b7b7db65fda964d26b2c89a2af4/textures/Boda%20Amanda%20%26%20Paula%20-25.webp'
+        )
+      ),
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/04a272803d184b7b7db65fda964d26b2c89a2af4/textures/Adria%CC%81n%20%26%20Conchi-1011.webp'
+        )
+      ),
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/04a272803d184b7b7db65fda964d26b2c89a2af4/textures/Adria%CC%81n%20%26%20Conchi-1129.webp'
+        )
+      ),
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/04a272803d184b7b7db65fda964d26b2c89a2af4/textures/BODA_M%26J-590.webp'
         )
       ),
     ])
-    return { perlin, texturesFront }
+    return { perlin, heroSwitched, texturesFront }
   }
 
   async addImages() {
-    const { perlin, texturesFront } = await this.loadTextures()
+    const { perlin, heroSwitched, texturesFront } = await this.loadTextures()
 
     const parameters = [
       {
         amp: 18,
         freq: 6,
-        offset: 0.04,
+        offset: 0.052,
         offsetFactor: 0.8,
+        needsSwitch: true,
         edgeIsDown: true,
         needsDistortion: true,
       },
       {
         amp: 2,
         freq: 3,
-        offset: 1.14,
+        offset: 2.14,
         offsetFactor: 2.52,
+        needsSwitch: false,
         edgeIsDown: false,
         needsDistortion: false,
       },
       {
         amp: 3,
         freq: 3,
-        offset: 1.14,
+        offset: 2.14,
         offsetFactor: 2.52,
+        needsSwitch: false,
         edgeIsDown: false,
         needsDistortion: false,
       },
@@ -325,6 +373,43 @@ export default class WorldHome {
         freq: 3,
         offset: 1.14,
         offsetFactor: 2.52,
+        needsSwitch: false,
+        edgeIsDown: false,
+        needsDistortion: false,
+      },
+      {
+        amp: 2,
+        freq: 3,
+        offset: 1.14,
+        offsetFactor: 2.52,
+        needsSwitch: false,
+        edgeIsDown: false,
+        needsDistortion: false,
+      },
+      {
+        amp: 3,
+        freq: 3,
+        offset: 1.14,
+        offsetFactor: 2.52,
+        needsSwitch: false,
+        edgeIsDown: false,
+        needsDistortion: false,
+      },
+      {
+        amp: 2.5,
+        freq: 3,
+        offset: 4.14,
+        offsetFactor: 2.52,
+        needsSwitch: false,
+        edgeIsDown: false,
+        needsDistortion: false,
+      },
+      {
+        amp: 2.5,
+        freq: 3,
+        offset: 4.14,
+        offsetFactor: 2.52,
+        needsSwitch: false,
         edgeIsDown: false,
         needsDistortion: false,
       },
@@ -336,7 +421,7 @@ export default class WorldHome {
         actualImg.naturalWidth,
         actualImg.naturalHeight
       )
-      console.log('image RES:', imageResolution.x, imageResolution.y)
+      // console.log('image RES:', imageResolution.x, imageResolution.y)
 
       let bounds = img.getBoundingClientRect()
 
@@ -361,10 +446,12 @@ export default class WorldHome {
           u_freq: { value: parameters[index].freq },
           u_edgeIsDown: { value: parameters[index].edgeIsDown },
           u_needsDistortion: { value: parameters[index].needsDistortion },
+          u_needsSwitch: { value: parameters[index].needsSwitch },
           u_scroll: { value: 0.0 },
           u_mouseX: { value: 0.0 },
           u_mouseY: { value: 0.0 },
           u_image_1: { value: texturesFront[index] },
+          u_image_2: { value: heroSwitched },
           u_displacement: { value: perlin },
         },
       })
@@ -380,6 +467,12 @@ export default class WorldHome {
         left: bounds.left,
         width: bounds.width,
         height: bounds.height,
+
+        mouseX: 0.5,
+        mouseY: 0.5,
+        targetMouseX: 0.5,
+        targetMouseY: 0.5,
+
         isVisible: true,
       }
     })
@@ -399,6 +492,7 @@ export default class WorldHome {
     })
   }
 
+  //#region GSAP
   // gsap
   // gsap() {
   //   const dur = 1.2
@@ -553,4 +647,5 @@ export default class WorldHome {
   //   //   })
   //   // })
   // }
+  //#endregion
 }

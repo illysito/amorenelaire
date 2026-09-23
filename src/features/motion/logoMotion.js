@@ -1,7 +1,7 @@
 import gsap from 'gsap'
 
-const logo_1 = document.querySelector('.logo-img')
-const logo_2 = document.querySelector('.logo-img.is--second')
+const logo_1 = document.querySelectorAll('.logo-img')
+const logo_2 = document.querySelectorAll('.logo-img.is--second')
 
 function logoMotion() {
   gsap.to(logo_1, {

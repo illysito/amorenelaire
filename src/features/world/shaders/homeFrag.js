@@ -11,6 +11,7 @@ uniform float u_seed;
 
 uniform bool u_edgeIsDown;
 uniform bool u_needsDistortion;
+uniform bool u_needsSwitch;
 
 uniform float u_offset;
 uniform float u_offsetFactor;
@@ -23,6 +24,7 @@ uniform float u_mouseX;
 uniform float u_mouseY;
 
 uniform sampler2D u_image_1;
+uniform sampler2D u_image_2;
 uniform sampler2D u_displacement;
 
 varying vec2 v_texcoord;
@@ -178,14 +180,14 @@ void main()
   // NOISE
 
   float noise = random(uv + sin(u_time));
-  float noiseFactor = 0.1 + 0.1 * u_grain;
+  float noiseFactor = 0.15 + 0.2 * u_grain;
 
-  // DISTORTION
+  // DISTORTION WAVY ON SCROLL
 
   float alpha = 1.0;
+  float dist = 0.5 * (snoise(vec3(uv.x * u_freq, uv.y / canvas_ratio * u_freq, 0.8 * u_time + u_scroll + 0.4 * u_mouseX + u_seed)) + 1.0);
 
   if (u_needsDistortion){
-    float dist = 0.5 * (snoise(vec3(uv.x * u_freq, uv.y / canvas_ratio * u_freq, 0.8 * u_time + u_scroll + u_mouseX + u_seed)) + 1.0);
     dist *= u_amp * u_scroll;
 
     float y = uv.y;
@@ -200,11 +202,35 @@ void main()
     alpha = 1.0 - smoothstep(-2.0 * pixelSize, 2.0 * pixelSize, d);
   }
 
+  // DISTORTION FOR MOUSE MOVE
+  if (!u_needsDistortion){
+    float distanceToImg = distance(uv, vec2(u_mouseX, u_mouseY));
+
+    float influence = smoothstep(
+      0.12,
+      0.0,
+      distanceToImg
+    );
+
+    float noiseOffset = 0.008 * dist + influence * 0.004;
+    coords.x += noiseOffset;
+    coords.y += noiseOffset;
+  }
+
   // IMG
 
-  vec4 img = texture2D(u_image_1, coords);
+  vec4 img_1 = texture2D(u_image_1, coords);
+  vec4 img_2 = texture2D(u_image_2, coords);
 
   // FINAL MIX
+  vec4 img = vec4(1.0, 1.0, 1.0, 1.0);
+  if(u_needsSwitch){
+    float switcher = step(0.5, fract(u_time / 0.08));
+    img = mix(img_1, img_2, switcher);
+  }else{
+    img = img_1;
+  }
+
   img += noise * noiseFactor;
 
   gl_FragColor = vec4(img.r, img.g, img.b, alpha);
