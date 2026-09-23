@@ -185,7 +185,7 @@ void main()
   // DISTORTION WAVY ON SCROLL
 
   float alpha = 1.0;
-  float dist = 0.5 * (snoise(vec3(uv.x * u_freq, uv.y / canvas_ratio * u_freq, 0.8 * u_time + u_scroll + 0.4 * u_mouseX + u_seed)) + 1.0);
+  float dist = 0.5 * (snoise(vec3(uv.x * u_freq, uv.y / canvas_ratio * u_freq, 0.8 * u_time + u_scroll + 0.32 * u_mouseX + u_seed)) + 1.0);
 
   if (u_needsDistortion){
     dist *= u_amp * u_scroll;
@@ -203,16 +203,35 @@ void main()
   }
 
   // DISTORTION FOR MOUSE MOVE
+  float mouseMask = 0.0;
   if (!u_needsDistortion){
-    float distanceToImg = distance(uv, vec2(u_mouseX, u_mouseY));
+    float mouseDist = distance(uv, vec2(u_mouseX, u_mouseY));
 
     float influence = smoothstep(
       0.12,
       0.0,
-      distanceToImg
+      mouseDist
     );
 
-    float noiseOffset = 0.008 * dist + influence * 0.004;
+    // Add noise to the brush boundary
+    float brushNoise = snoise(vec3(
+            uv.x * 8.0,
+            uv.y * 8.0 + u_time * 0.15,
+        u_time
+        )
+    );
+
+    // Distort the radius
+    float noisyDist = mouseDist + brushNoise * 0.08;
+
+    // 0 inside cursor area → 1 outside
+    mouseMask = smoothstep(
+      0.1975,
+      0.198,
+      noisyDist
+    );
+
+    float noiseOffset = 0.008 * dist + influence * 0.008;
     coords.x += noiseOffset;
     coords.y += noiseOffset;
   }
@@ -228,7 +247,9 @@ void main()
     float switcher = step(0.5, fract(u_time / 0.08));
     img = mix(img_1, img_2, switcher);
   }else{
-    img = img_1;
+    vec4 bg = vec4(1.0, 0.9922, 0.9137, 0.0);
+    img = mix(img_2, img_1, mouseMask);
+    alpha = img.a;
   }
 
   img += noise * noiseFactor;
