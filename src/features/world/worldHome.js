@@ -92,7 +92,7 @@ export default class WorldHome {
       this.setImagePositions()
       this.resize()
       this.setupListeners()
-    }, 600) // tweak: 300–1500ms depending on feel
+    }, 1000) // tweak: 300–1500ms depending on feel
   }
 
   //#region OBSERVER
@@ -183,7 +183,7 @@ export default class WorldHome {
         gsap.killTweensOf(item, 'warpFactor')
 
         gsap.to(item, {
-          warpFactor: 0.148,
+          warpFactor: 0.108,
           duration: 1.2,
           ease: 'power2.inOut',
           onComplete: () => {
