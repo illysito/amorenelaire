@@ -53,7 +53,7 @@ function scroll_hero() {
       scrollTrigger: {
         trigger: w,
         start: 'top 99%',
-        // end:'top 0%',
+        end: 'bottom top',
         scrub: true,
         // markers: true,
       },
