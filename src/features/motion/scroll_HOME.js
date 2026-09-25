@@ -6,19 +6,36 @@ gsap.registerPlugin(ScrollTrigger)
 const claimLines = [...document.querySelectorAll('.claim-h')]
 const heroSection = document.querySelector('.hero__section')
 
+const miniClaimLines = [...document.querySelectorAll('.hero-p')]
+
 const subClaimLines = [...document.querySelectorAll('.claim-sub-h')]
 const claimSection = document.querySelector('.claim__section')
 
 const imageWrappers = [
   ...document.querySelectorAll('.content-img-wrapper.is--gallery'),
 ]
-// const gallerySection = document.querySelector('.gallery__section')
+const gallerySection = document.querySelector('.gallery__section')
+const valueSection = document.querySelector('.value__section')
 
 const hamburgerLines = [...document.querySelectorAll('.line')]
 const logoWrappers = [...document.querySelectorAll('.logo-wrapper')]
 
 function scroll_hero() {
   claimLines.forEach((line) => {
+    gsap.to(line, {
+      yPercent: 100,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: heroSection,
+        start: 'bottom 99%',
+        end: 'bottom 60%',
+        scrub: 1.2,
+        // markers: true,
+      },
+    })
+  })
+
+  miniClaimLines.forEach((line) => {
     gsap.to(line, {
       yPercent: 100,
       ease: 'power3.out',
@@ -39,14 +56,14 @@ function scroll_hero() {
       duration: 1.6,
       scrollTrigger: {
         trigger: claimSection,
-        start: 'bottom 99%',
+        start: 'top 60%',
         // markers: true,
       },
     })
   })
 
   imageWrappers.forEach((w) => {
-    const offset = -20 * Math.random()
+    const offset = -40 * Math.random()
     gsap.to(w, {
       yPercent: offset,
       ease: 'none',
@@ -91,6 +108,30 @@ function scroll_hero() {
       start: 'bottom 32%',
       end: 'bottom 20%',
       scrub: 1.2,
+      // markers: true,
+    },
+  })
+
+  gsap.to(document.body, {
+    backgroundColor: '#ffd1d3',
+    ease: 'power2.inOut',
+    scrollTrigger: {
+      trigger: gallerySection,
+      start: 'top 99%',
+      end: 'top 12%',
+      scrub: true,
+      // markers: true,
+    },
+  })
+
+  gsap.to(document.body, {
+    backgroundColor: '#fffde9',
+    ease: 'power2.inOut',
+    scrollTrigger: {
+      trigger: valueSection,
+      start: 'top 99%',
+      end: 'top 12%',
+      scrub: true,
       // markers: true,
     },
   })

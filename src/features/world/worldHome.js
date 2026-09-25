@@ -165,8 +165,8 @@ export default class WorldHome {
     )
 
     // window.addEventListener('mousemove', (e) => {
-    //   this.targetMouseX = (0.1 * e.clientX) / window.innerWidth
-    //   this.targetMouseY = (0.1 * e.clientY) / window.innerHeight
+    //   this.targetMouseX = e.clientX / window.innerWidth
+    //   this.targetMouseY = e.clientY / window.innerHeight
     // })
 
     this.domImageWrappers.forEach((w, index) => {
@@ -189,10 +189,10 @@ export default class WorldHome {
           onComplete: () => {
             // If they're still hovering, slowly consume the image
             gsap.to(item, {
-              delay: 3,
+              delay: 2.4,
               warpFactor: 1,
-              duration: 5,
-              ease: 'power2.inOut',
+              duration: 1.2,
+              ease: 'power3.inOut',
             })
           },
         })
@@ -268,10 +268,28 @@ export default class WorldHome {
         img.mouseY = this.lerp(img.mouseY, img.targetMouseY, this.lerpFactor)
 
         img.mesh.material.uniforms.u_time.value = 0.002 * this.time
-        img.mesh.material.uniforms.u_scroll.value = this.scrollValue
+        // img.mesh.material.uniforms.u_scroll.value = this.scrollValue
         img.mesh.material.uniforms.u_mouseX.value = img.mouseX
         img.mesh.material.uniforms.u_mouseY.value = img.mouseY
         img.mesh.material.uniforms.u_warpFactor.value = img.warpFactor
+
+        // img.mesh.position.x -= 0.1 * (2 - 4 * this.targetMouseX)
+
+        const isFooter = img === this.imageStore[this.imageStore.length - 1]
+
+        if (isFooter) {
+          const rect = img.img.getBoundingClientRect()
+
+          const progress = THREE.MathUtils.clamp(
+            (this.h - rect.top) / rect.height,
+            0,
+            1
+          )
+
+          img.mesh.material.uniforms.u_scroll.value = progress
+        } else {
+          img.mesh.material.uniforms.u_scroll.value = this.scrollValue
+        }
       })
     }
     // time for image canvas
@@ -317,9 +335,14 @@ export default class WorldHome {
 
     const texturesFront = await Promise.all([
       // Pau
+      // loader.loadAsync(
+      //   githubToJsDelivr(
+      //     'https://github.com/illysito/amorenelaire/blob/14313651f9b1110aa4ec9d46ead45adea22942d9/textures/AmorenelAirePaulaPRUEBA-12.jpg'
+      //   )
+      // ),
       loader.loadAsync(
         githubToJsDelivr(
-          'https://github.com/illysito/amorenelaire/blob/14313651f9b1110aa4ec9d46ead45adea22942d9/textures/AmorenelAirePaulaPRUEBA-12.jpg'
+          'https://github.com/illysito/amorenelaire/blob/004bdb4558f4ae27e31914534170fab3c14034f2/textures/AmorenelAireHERO3.jpg'
         )
       ),
       // Zoa x Diego
@@ -334,6 +357,11 @@ export default class WorldHome {
         )
       ),
       // Amanda x Paula
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/9e43d2cbf191e1bad96c1e22e30f890dd6e1768e/textures/Boda%20Amanda%20%26%20Paula%20-30.webp'
+        )
+      ),
       loader.loadAsync(
         githubToJsDelivr(
           'https://github.com/illysito/amorenelaire/blob/9e43d2cbf191e1bad96c1e22e30f890dd6e1768e/textures/Boda%20Amanda%20%26%20Paula%20-30.webp'
@@ -361,15 +389,48 @@ export default class WorldHome {
           'https://github.com/illysito/amorenelaire/blob/04a272803d184b7b7db65fda964d26b2c89a2af4/textures/BODA_M%26J-590.webp'
         )
       ),
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/9e43d2cbf191e1bad96c1e22e30f890dd6e1768e/textures/BODA_M%26J-473%20(1).webp'
+        )
+      ),
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/9e43d2cbf191e1bad96c1e22e30f890dd6e1768e/textures/BODA_M%26J-473%20(1).webp'
+        )
+      ),
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/04a272803d184b7b7db65fda964d26b2c89a2af4/textures/Boda%20Amanda%20%26%20Paula%20-25.webp'
+        )
+      ),
+      // Conchi x Adrian
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/04a272803d184b7b7db65fda964d26b2c89a2af4/textures/Adria%CC%81n%20%26%20Conchi-1011.webp'
+        )
+      ),
+      // Footer
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/5317c1c44dd6a16c268cb3c01682b6a72b9f425e/textures/Footer.jpg'
+        )
+      ),
     ])
 
     const texturesBack = await Promise.all([
       // Pau
+      // loader.loadAsync(
+      //   githubToJsDelivr(
+      //     'https://github.com/illysito/amorenelaire/blob/14313651f9b1110aa4ec9d46ead45adea22942d9/textures/AmorenelAirePaulaPRUEBA-13.jpg'
+      //   )
+      // ),
       loader.loadAsync(
         githubToJsDelivr(
-          'https://github.com/illysito/amorenelaire/blob/14313651f9b1110aa4ec9d46ead45adea22942d9/textures/AmorenelAirePaulaPRUEBA-13.jpg'
+          'https://github.com/illysito/amorenelaire/blob/004bdb4558f4ae27e31914534170fab3c14034f2/textures/AmorenelAireHERO3.jpg'
         )
       ),
+
       // Zoa x Diego
       loader.loadAsync(
         githubToJsDelivr(
@@ -403,10 +464,42 @@ export default class WorldHome {
           'https://github.com/illysito/amorenelaire/blob/9e43d2cbf191e1bad96c1e22e30f890dd6e1768e/textures/Adria%CC%81n%20%26%20Conchi-574.webp'
         )
       ),
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/9e43d2cbf191e1bad96c1e22e30f890dd6e1768e/textures/Adria%CC%81n%20%26%20Conchi-574.webp'
+        )
+      ),
       // Miri x Joan
       loader.loadAsync(
         githubToJsDelivr(
           'https://github.com/illysito/amorenelaire/blob/9e43d2cbf191e1bad96c1e22e30f890dd6e1768e/textures/BODA_M%26J-473%20(1).webp'
+        )
+      ),
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/9e43d2cbf191e1bad96c1e22e30f890dd6e1768e/textures/BODA_M%26J-473%20(1).webp'
+        )
+      ),
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/9e43d2cbf191e1bad96c1e22e30f890dd6e1768e/textures/BODA_M%26J-473%20(1).webp'
+        )
+      ),
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/9e43d2cbf191e1bad96c1e22e30f890dd6e1768e/textures/Boda%20Amanda%20%26%20Paula%20-80.webp'
+        )
+      ),
+      // Conchi x Adrian
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/9e43d2cbf191e1bad96c1e22e30f890dd6e1768e/textures/Adria%CC%81n%20%26%20Conchi-1059.webp'
+        )
+      ),
+      // Footer
+      loader.loadAsync(
+        githubToJsDelivr(
+          'https://github.com/illysito/amorenelaire/blob/5317c1c44dd6a16c268cb3c01682b6a72b9f425e/textures/Footer.jpg'
         )
       ),
     ])
@@ -489,6 +582,61 @@ export default class WorldHome {
         needsSwitch: false,
         edgeIsDown: false,
         needsDistortion: false,
+      },
+      {
+        amp: 2.5,
+        freq: 3,
+        offset: 4.14,
+        offsetFactor: 2.52,
+        needsSwitch: false,
+        edgeIsDown: false,
+        needsDistortion: false,
+      },
+      {
+        amp: 2.5,
+        freq: 3,
+        offset: 4.14,
+        offsetFactor: 2.52,
+        needsSwitch: false,
+        edgeIsDown: false,
+        needsDistortion: false,
+      },
+      {
+        amp: 2.5,
+        freq: 3,
+        offset: 4.14,
+        offsetFactor: 2.52,
+        needsSwitch: false,
+        edgeIsDown: false,
+        needsDistortion: false,
+      },
+      {
+        amp: 2.5,
+        freq: 3,
+        offset: 4.14,
+        offsetFactor: 2.52,
+        needsSwitch: false,
+        edgeIsDown: false,
+        needsDistortion: false,
+      },
+      {
+        amp: 2.5,
+        freq: 3,
+        offset: 4.14,
+        offsetFactor: 2.52,
+        needsSwitch: false,
+        edgeIsDown: false,
+        needsDistortion: false,
+      },
+      // Footer
+      {
+        amp: 5.5,
+        freq: 6,
+        offset: 0.9,
+        offsetFactor: 1,
+        needsSwitch: true,
+        edgeIsDown: false,
+        needsDistortion: true,
       },
     ]
 
