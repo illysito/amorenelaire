@@ -12,7 +12,7 @@ const claimSection = document.querySelector('.claim__section')
 const imageWrappers = [
   ...document.querySelectorAll('.content-img-wrapper.is--gallery'),
 ]
-const gallerySection = document.querySelector('.gallery__section')
+// const gallerySection = document.querySelector('.gallery__section')
 
 const hamburgerLines = [...document.querySelectorAll('.line')]
 const logoWrappers = [...document.querySelectorAll('.logo-wrapper')]
@@ -46,12 +46,12 @@ function scroll_hero() {
   })
 
   imageWrappers.forEach((w) => {
-    const offset = -32 * Math.random()
+    const offset = -20 * Math.random()
     gsap.to(w, {
       yPercent: offset,
       ease: 'none',
       scrollTrigger: {
-        trigger: gallerySection,
+        trigger: w,
         start: 'top 99%',
         // end:'top 0%',
         scrub: true,
